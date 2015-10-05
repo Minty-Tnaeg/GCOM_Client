@@ -15,7 +15,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.KeyListener;
-import java.io.IOException;
 
 public class ClientGUI {
     private JFrame frame;
@@ -78,12 +77,8 @@ public class ClientGUI {
             @Override
             public void keyReleased(KeyEvent ke) {
                 if(ke.getKeyCode() == KeyEvent.VK_ENTER){
-                    try {
-                        mw.sendMessage(chatMessage.getText());
-                        chatMessage.setText("");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    mw.send(chatMessage.getText());
+                    chatMessage.setText("");
                 }
             }
         });
