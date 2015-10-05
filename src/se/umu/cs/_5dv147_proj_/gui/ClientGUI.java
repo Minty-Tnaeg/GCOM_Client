@@ -41,7 +41,7 @@ public class ClientGUI {
         SettingsFrame sf = new SettingsFrame("localhost", "33400");
         sf.waitUntilDisposed();
 
-        mw = new Middleware(new String[]{"-a", sf.getNameServerAdress(), "-p", sf.getNameServerPort(), "-u", sf.getNickName()});
+        mw = new Middleware(new String[]{"-a", sf.getNameServerAdress(), "-p", sf.getNameServerPort(), "-u", sf.getNickName(), "-d"});
 
         GroupListFrame glf = new GroupListFrame(mw);
 
