@@ -7,6 +7,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 /**
  * Created by c12slm on 2015-10-02.
@@ -18,6 +20,7 @@ public class GroupListFrame {
     private Middleware mw;
     private String[][] groupList;
     private static String[] header = {"Groupname", "Leader"};
+    private JTextField newGroup;
 
     public GroupListFrame(Middleware mw) {
         this.mw = mw;
@@ -26,7 +29,14 @@ public class GroupListFrame {
         this.tablePanel = new JPanel(new BorderLayout());
         this.serverFrame.add(this.tablePanel);
         this.tablePanel.setPreferredSize(new Dimension(500, 300));
-        this.groupList = mw.getGroups();
+        this.groupList = mw.getGroupList();
+        for(String[] ss : groupList){
+            for(String s : ss){
+                System.err.println(s + " ");
+            }
+            System.err.println("");
+        }
+        buildCreateGroupText();
         buildGroupTable();
         buildConnectButton();
 
@@ -35,18 +45,53 @@ public class GroupListFrame {
         this.serverFrame.setLocationRelativeTo(null);
     }
 
+    private void buildCreateGroupText() {
+        JPanel jp = new JPanel(new BorderLayout());
+        jp.add(new JLabel("Create new group"), BorderLayout.NORTH);
+        this.newGroup = new JTextField();
+        this.newGroup.addKeyListener(new KeyListener() {
+
+            @Override
+            public void keyTyped(KeyEvent ke) {}
+
+            @Override
+            public void keyPressed(KeyEvent ke) {}
+
+            @Override
+            public void keyReleased(KeyEvent ke) {
+                if(ke.getKeyCode() == KeyEvent.VK_ENTER){
+                    mw.joinGroup(newGroup.getText());
+                    serverFrame.dispose();
+                }
+            }
+        });
+
+        this.newGroup.setPreferredSize(new Dimension(500,20));
+        jp.add(this.newGroup, BorderLayout.CENTER);
+        jp.add(Box.createRigidArea(new Dimension(0,10)), BorderLayout.SOUTH);
+        this.tablePanel.add(jp, BorderLayout.NORTH);
+    }
+
     private void buildGroupTable() {
+        JPanel jp = new JPanel(new BorderLayout());
+        jp.add(new JLabel("Join group"), BorderLayout.NORTH);
+
         Object[][] dataTable = groupList;
         DefaultTableModel tableModel = new DefaultTableModel(dataTable, header);
 
         DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
         leftRenderer.setHorizontalAlignment(JLabel.LEFT);
 
-        groupTable = new JTable(tableModel);
-        groupTable.setAutoCreateRowSorter(true);
-        groupTable.setGridColor(Color.GRAY);
-        groupTable.setShowGrid(true);
-        groupTable.setRowHeight(20);
+        this.groupTable = new JTable(tableModel);
+        this.groupTable.setAutoCreateRowSorter(true);
+        this.groupTable.setGridColor(Color.GRAY);
+        this.groupTable.setShowGrid(true);
+        this.groupTable.setRowHeight(20);
+        JScrollPane jsp = new JScrollPane();
+        jsp.setViewportView(this.groupTable);
+
+        jp.add(jsp, BorderLayout.CENTER);
+        this.tablePanel.add(jp, BorderLayout.CENTER);
     }
 
     private void buildConnectButton(){
@@ -55,6 +100,6 @@ public class GroupListFrame {
             mw.joinGroup(groupList[groupTable.getSelectedRow()][0]);
             serverFrame.dispose();
         });
-        tablePanel.add(button, BorderLayout.SOUTH);
+        this.tablePanel.add(button, BorderLayout.SOUTH);
     }
 }

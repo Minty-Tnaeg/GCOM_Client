@@ -15,6 +15,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.KeyListener;
+import java.io.IOException;
 
 public class ClientGUI {
     private JFrame frame;
@@ -38,16 +39,16 @@ public class ClientGUI {
         this.frame.pack();
         this.frame.setLocationRelativeTo(null);
 
-        SettingsFrame sf = new SettingsFrame("static.cs.umu.se", "33400");
+        SettingsFrame sf = new SettingsFrame("localhost", "33400");
         sf.waitUntilDisposed();
 
-        mw = new Middleware(new String[]{"-a", sf.getNameServerAdress(), "-p", sf.getNameServerPort()});
+        mw = new Middleware(new String[]{"-a", sf.getNameServerAdress(), "-p", sf.getNameServerPort(), "-u", sf.getNickName()});
 
         GroupListFrame glf = new GroupListFrame(mw);
 
         mw.registerActionListener(e -> {
             if(e.getActionCommand().equals("TextMessage")){
-                chatWindow.append("\n" + mw.receive());
+                chatWindow.append("TEMPORARY STRING - SHOULD USE mw.getMessage()\n");
             }
         });
     }
@@ -77,8 +78,12 @@ public class ClientGUI {
             @Override
             public void keyReleased(KeyEvent ke) {
                 if(ke.getKeyCode() == KeyEvent.VK_ENTER){
-                    mw.send(chatMessage.getText());
-                    chatMessage.setText("");
+                    try {
+                        mw.sendMessage(chatMessage.getText());
+                        chatMessage.setText("");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });

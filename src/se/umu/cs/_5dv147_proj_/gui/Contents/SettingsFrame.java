@@ -9,6 +9,7 @@ public class SettingsFrame {
 	private JFrame settingsFrame;
 	private JTextField nServerName;
 	private JTextField nServerPort;
+	private JTextField nickName;
 	private JPanel settingsPanel;
 
 	private JButton accept;
@@ -28,6 +29,7 @@ public class SettingsFrame {
 	}
 
 	private void buildSettingsPanel(String nameServerAdress, String nameServerPort) {
+		this.nickName = new JTextField("");
 		this.nServerName = new JTextField(nameServerAdress, 30);
 		this.nServerPort = new JTextField(nameServerPort);
 
@@ -35,7 +37,13 @@ public class SettingsFrame {
 
 		JLabel portLabel = new JLabel("Port: ", JLabel.TRAILING);
 		JLabel nServNameLabel = new JLabel("Address: ", JLabel.TRAILING);
+		JLabel nickLabel = new JLabel("Nickname: ", JLabel.TRAILING);
 		JLabel emptyLabel = new JLabel("", JLabel.TRAILING);
+
+		//Nickname
+		this.settingsFrame.add(nickLabel);
+		portLabel.setLabelFor(this.nickName);
+		this.settingsFrame.add(this.nickName);
 
 		//Nameserver
 		this.settingsPanel.add(nServNameLabel);
@@ -50,6 +58,22 @@ public class SettingsFrame {
 		this.settingsFrame.add(emptyLabel);
 		emptyLabel.setLabelFor(this.accept);
 		this.settingsFrame.add(this.accept);
+
+		this.nickName.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent ke) {}
+
+			@Override
+			public void keyPressed(KeyEvent ke) {}
+
+			@Override
+			public void keyReleased(KeyEvent ke) {
+				if(ke.getKeyCode() == KeyEvent.VK_ENTER){
+					nServerName.requestFocusInWindow();
+				}
+			}
+		});
 
 		this.nServerName.addKeyListener(new KeyListener() {
 
@@ -66,6 +90,7 @@ public class SettingsFrame {
 				}
 			}
 		});
+
 		this.nServerPort.addKeyListener(new KeyListener() {
 
 			@Override
@@ -83,7 +108,7 @@ public class SettingsFrame {
 		});
 		this.accept.addActionListener(ae -> settingsFrame.dispose());
 
-		SpringUtilities.makeCompactGrid(this.settingsPanel, 3, 2, 5, 5, 5, 5);
+		SpringUtilities.makeCompactGrid(this.settingsPanel, 4, 2, 5, 5, 5, 5);
 	}
 
 	public String getNameServerAdress(){
@@ -92,6 +117,10 @@ public class SettingsFrame {
 
 	public String getNameServerPort(){
 		return this.nServerPort.getText();
+	}
+
+	public String getNickName() {
+		return nickName.getText();
 	}
 
 	public void waitUntilDisposed() {
