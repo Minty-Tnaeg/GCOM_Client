@@ -4,6 +4,7 @@ import se.umu.cs._5dv147_proj.Middleware;
 import se.umu.cs._5dv147_proj_.gui.Contents.GroupListFrame;
 import se.umu.cs._5dv147_proj_.gui.Contents.SettingsFrame;
 import se.umu.cs._5dv147_proj_.gui.Contents.SmartScroller;
+import se.umu.cs._5dv147_proj_.settings.Debug;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -15,6 +16,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 
 public class ClientGUI {
     private JFrame frame;
@@ -38,7 +40,7 @@ public class ClientGUI {
         this.frame.pack();
         this.frame.setLocationRelativeTo(null);
 
-        SettingsFrame sf = new SettingsFrame("localhost", "33400");
+        SettingsFrame sf = new SettingsFrame("localhost", "33401");
         sf.waitUntilDisposed();
 
         mw = new Middleware(new String[]{"-a", sf.getNameServerAdress(), "-p", sf.getNameServerPort(), "-u", sf.getNickName(), "-d"});
@@ -48,6 +50,9 @@ public class ClientGUI {
         mw.registerActionListener(e -> {
             if(e.getActionCommand().equals("TextMessage")){
                 chatWindow.append(mw.receive() + "\n");
+            }else if(e.getActionCommand().equals("UpdateUsers")){
+                Debug.getDebug().log("UpdateUser TRIGGERED");
+                setUsers(mw.getNameList());
             }
         });
     }
@@ -109,5 +114,15 @@ public class ClientGUI {
         userWindow.setBackground(Color.WHITE);
 
         this.chatPanel.add(userWindow, BorderLayout.EAST);
+    }
+
+    private synchronized void setUsers(ArrayList<String> names){
+        for(int i = 0; i < this.userTable.getRowCount(); i++){
+            this.userTable.removeRow(i);
+        }
+        for(int i = 0; i < names.size(); i++){
+            this.userTable.addRow(new String[] {names.get(i)});
+        }
+        this.userTable.fireTableDataChanged();
     }
 }
