@@ -47,7 +47,7 @@ public class ClientGUI {
 
         mw.registerActionListener(e -> {
             if(e.getActionCommand().equals("TextMessage")){
-                chatWindow.append("TEMPORARY STRING - SHOULD USE mw.getMessage()\n");
+                chatWindow.append(mw.receive() + "\n");
             }
         });
     }
