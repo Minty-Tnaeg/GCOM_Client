@@ -1,8 +1,6 @@
 package se.umu.cs._5dv147_proj_.gui;
 
 import se.umu.cs._5dv147_proj.Middleware;
-import se.umu.cs._5dv147_proj.message.container.CausalContainer;
-import se.umu.cs._5dv147_proj.message.type.TextMessage;
 import se.umu.cs._5dv147_proj.settings.Debug;
 import se.umu.cs._5dv147_proj_.gui.Contents.GroupListFrame;
 import se.umu.cs._5dv147_proj_.gui.Contents.SettingsFrame;
@@ -19,8 +17,6 @@ import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
 
 public class ClientGUI {
     private JFrame frame;
@@ -64,36 +60,19 @@ public class ClientGUI {
         GroupListFrame glf = new GroupListFrame(mw);
 
         mw.registerActionListener(e -> {
+            Debug.getDebug().log("GUI action listener; " + e.getActionCommand());
             if(e.getActionCommand().equals("TextMessage")){
                 chatWindow.append(mw.receive() + "\n");
-                debugFrame.buildHoldBackQueueTable();
+                debugFrame.updateHoldBackQueueTable();
             }else if(e.getActionCommand().equals("UpdateUsers")){
                 setUsers(mw.getNameList());
             }else if(e.getActionCommand().equals("holdBack")){
-                debugFrame.buildHoldBackQueueTable();
+                debugFrame.updateHoldBackQueueTable();
             }
+            frame.repaint();
         });
 
         glf.waitUntilDisposed();
-
-        UUID pid1 = UUID.randomUUID();
-        UUID pid2 = UUID.randomUUID();
-        UUID pid3 = UUID.randomUUID();
-        UUID pid4 = UUID.randomUUID();
-        HashMap<UUID, Integer> vectorClock = new HashMap<>();
-
-        vectorClock.put(pid1, 0);
-        vectorClock.put(pid2, 0);
-        vectorClock.put(pid3, 0);
-        vectorClock.put(pid4, 0);
-        Debug.getDebug().addPid(pid1, "Derp");
-        Debug.getDebug().addPid(pid2, "Herp");
-        Debug.getDebug().addPid(pid3, "Gerp");
-        Debug.getDebug().addPid(pid4, "Terp");
-
-        Debug.getDebug().fetchHoldBackQueue().add(new CausalContainer(new TextMessage("TEST", "Mintey"), vectorClock, pid1));
-
-        debugFrame.buildHoldBackQueueTable();
 
         this.frame.setVisible(true);
         this.frame.pack();
@@ -118,21 +97,23 @@ public class ClientGUI {
         this.chatMessage.addKeyListener(new KeyListener() {
 
             @Override
-            public void keyTyped(KeyEvent ke) {}
+            public void keyTyped(KeyEvent ke) {
+            }
 
             @Override
-            public void keyPressed(KeyEvent ke) {}
+            public void keyPressed(KeyEvent ke) {
+            }
 
             @Override
             public void keyReleased(KeyEvent ke) {
-                if(ke.getKeyCode() == KeyEvent.VK_ENTER){
+                if (ke.getKeyCode() == KeyEvent.VK_ENTER) {
                     mw.send(chatMessage.getText());
                     chatMessage.setText("");
                 }
             }
         });
 
-        this.chatMessage.setPreferredSize(new Dimension(500,20));
+        this.chatMessage.setPreferredSize(new Dimension(500, 20));
         this.chatPanel.add(this.chatMessage, BorderLayout.SOUTH);
     }
 

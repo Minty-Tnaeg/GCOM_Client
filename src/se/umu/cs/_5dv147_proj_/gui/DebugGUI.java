@@ -19,9 +19,15 @@ public class DebugGUI extends JPanel {
     private JTextField dropRate;
     private JCheckBox reOrder;
     private JButton setSettings;
+    private DefaultTableModel holdBackTable;
 
     public DebugGUI() {
         super(new BorderLayout());
+        buildButtonPanel();
+        buildHoldBackQueueTable();
+    }
+
+    private void buildButtonPanel() {
         JPanel buttonPanel = new JPanel(new SpringLayout());
 
         this.minDelay = new JTextField("0", 5);
@@ -73,24 +79,15 @@ public class DebugGUI extends JPanel {
         this.add(buttonPanel, BorderLayout.NORTH);
     }
 
-    public void buildHoldBackQueueTable() {
+    private void buildHoldBackQueueTable() {
         JPanel jp = new JPanel(new BorderLayout());
-        jp.add(new JLabel("Join group"), BorderLayout.NORTH);
+        jp.add(new JLabel("Holdback Queue"), BorderLayout.NORTH);
 
-        ArrayList<AbstractContainer> holdBackQueue = new ArrayList<>(Debug.getDebug().fetchHoldBackQueue());
-
-        String[][] dataTable = new String[holdBackQueue.size()][2];
-
-        int i = 0;
-        for (AbstractContainer container : holdBackQueue) {
-            Debug.getDebug().log("REBUILDING GRAPHIC HOLDBACK: " + container.getMessage().toString());
-            dataTable[i][0] = container.getMessage().toString();
-            dataTable[i][1] = container.toString();
-        }
+        String[][] dataTable = new String[][]{{"", ""}};
 
         String[] header = new String[]{"Message", "Vector Clock"};
 
-        DefaultTableModel tableModel = new DefaultTableModel(dataTable, header){
+        this.holdBackTable = new DefaultTableModel(dataTable, header){
             @Override
             public boolean isCellEditable(int row, int column){
                 return false;
@@ -100,16 +97,33 @@ public class DebugGUI extends JPanel {
         DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
         leftRenderer.setHorizontalAlignment(JLabel.LEFT);
 
-        JTable holdBackQueueTable = new JTable(tableModel);
-        holdBackQueueTable.setAutoCreateRowSorter(true);
-        holdBackQueueTable.setGridColor(Color.GRAY);
-        holdBackQueueTable.setShowGrid(true);
-        holdBackQueueTable.setRowHeight(20);
+        JTable jt = new JTable(this.holdBackTable);
+        jt.setAutoCreateRowSorter(true);
+        jt.setGridColor(Color.GRAY);
+        jt.setShowGrid(true);
+        jt.setRowHeight(20);
         JScrollPane jsp = new JScrollPane();
-        jsp.setViewportView(holdBackQueueTable);
+        jsp.setViewportView(jt);
 
         jp.add(jsp, BorderLayout.CENTER);
         this.add(jp, BorderLayout.CENTER);
-        repaint();
+    }
+
+    public void updateHoldBackQueueTable(){
+        ArrayList<AbstractContainer> holdBackQueue = new ArrayList<>(Debug.getDebug().fetchHoldBackQueue());
+
+        String[][] dataTable = new String[holdBackQueue.size()][2];
+
+        for(int i = 0; i < this.holdBackTable.getRowCount(); i++){
+            this.holdBackTable.removeRow(i);
+        }
+        if(holdBackQueue.size() == 0){
+            this.holdBackTable.addRow(new String[] {"", ""});
+        }else{
+            for (AbstractContainer container : holdBackQueue) {
+                this.holdBackTable.addRow(new String[]{container.getMessage().toString(), container.toString()});
+            }
+        }
+        this.holdBackTable.fireTableDataChanged();
     }
 }
