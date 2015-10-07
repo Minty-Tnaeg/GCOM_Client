@@ -1,10 +1,12 @@
 package se.umu.cs._5dv147_proj_.gui;
 
 import se.umu.cs._5dv147_proj.Middleware;
+import se.umu.cs._5dv147_proj.message.container.CausalContainer;
+import se.umu.cs._5dv147_proj.message.type.TextMessage;
+import se.umu.cs._5dv147_proj.settings.Debug;
 import se.umu.cs._5dv147_proj_.gui.Contents.GroupListFrame;
 import se.umu.cs._5dv147_proj_.gui.Contents.SettingsFrame;
 import se.umu.cs._5dv147_proj_.gui.Contents.SmartScroller;
-import se.umu.cs._5dv147_proj_.settings.Debug;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -17,9 +19,12 @@ import javax.swing.table.DefaultTableModel;
 
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class ClientGUI {
     private JFrame frame;
+    private DebugGUI debugFrame;
     private JPanel chatPanel;
     private JTextArea chatWindow;
     private JTextField chatMessage;
@@ -32,29 +37,68 @@ public class ClientGUI {
         this.chatPanel = new JPanel(new BorderLayout());
         this.frame.add(this.chatPanel);
 
-        buildUserWindow();
+        //buildUserWindow();
         buildChatWindow();
         buildChatMessage();
-
-        this.frame.setVisible(true);
-        this.frame.pack();
-        this.frame.setLocationRelativeTo(null);
 
         SettingsFrame sf = new SettingsFrame("localhost", "33401");
         sf.waitUntilDisposed();
 
-        mw = new Middleware(new String[]{"-a", sf.getNameServerAdress(), "-p", sf.getNameServerPort(), "-u", sf.getNickName(), "-d"});
+        ArrayList<String> args = new ArrayList<>();
+        args.add("-a");
+        args.add(sf.getNameServerAdress());
+        args.add("-p");
+        args.add(sf.getNameServerPort());
+        args.add("-u");
+        args.add(sf.getNickName());
+        args.add("-c");
+        args.add("unordered");
+        if(sf.getDebug()){
+            args.add("-d");
+            this.debugFrame = new DebugGUI();
+            this.frame.add(debugFrame, BorderLayout.NORTH);
+        }
+
+        mw = new Middleware(args.toArray(new String[1]));
 
         GroupListFrame glf = new GroupListFrame(mw);
 
         mw.registerActionListener(e -> {
             if(e.getActionCommand().equals("TextMessage")){
                 chatWindow.append(mw.receive() + "\n");
+                debugFrame.buildHoldBackQueueTable();
             }else if(e.getActionCommand().equals("UpdateUsers")){
-                Debug.getDebug().log("UpdateUser TRIGGERED");
                 setUsers(mw.getNameList());
+            }else if(e.getActionCommand().equals("holdBack")){
+                debugFrame.buildHoldBackQueueTable();
             }
         });
+
+        glf.waitUntilDisposed();
+
+        UUID pid1 = UUID.randomUUID();
+        UUID pid2 = UUID.randomUUID();
+        UUID pid3 = UUID.randomUUID();
+        UUID pid4 = UUID.randomUUID();
+        HashMap<UUID, Integer> vectorClock = new HashMap<>();
+
+        vectorClock.put(pid1, 0);
+        vectorClock.put(pid2, 0);
+        vectorClock.put(pid3, 0);
+        vectorClock.put(pid4, 0);
+        Debug.getDebug().addPid(pid1, "Derp");
+        Debug.getDebug().addPid(pid2, "Herp");
+        Debug.getDebug().addPid(pid3, "Gerp");
+        Debug.getDebug().addPid(pid4, "Terp");
+
+        Debug.getDebug().fetchHoldBackQueue().add(new CausalContainer(new TextMessage("TEST", "Mintey"), vectorClock, pid1));
+
+        debugFrame.buildHoldBackQueueTable();
+
+        this.frame.setVisible(true);
+        this.frame.pack();
+        this.frame.setLocationRelativeTo(null);
+        this.chatMessage.requestFocus();
     }
 
     private void buildChatWindow(){
@@ -117,12 +161,14 @@ public class ClientGUI {
     }
 
     private synchronized void setUsers(ArrayList<String> names){
-        for(int i = 0; i < this.userTable.getRowCount(); i++){
-            this.userTable.removeRow(i);
+        if(this.userTable != null) {
+            for(int i = 0; i < this.userTable.getRowCount(); i++){
+                this.userTable.removeRow(i);
+            }
+            for(int i = 0; i < names.size(); i++){
+                this.userTable.addRow(new String[] {names.get(i)});
+            }
+            this.userTable.fireTableDataChanged();
         }
-        for(int i = 0; i < names.size(); i++){
-            this.userTable.addRow(new String[] {names.get(i)});
-        }
-        this.userTable.fireTableDataChanged();
     }
 }

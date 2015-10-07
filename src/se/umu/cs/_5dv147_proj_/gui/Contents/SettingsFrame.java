@@ -10,6 +10,7 @@ public class SettingsFrame {
 	private JTextField nServerName;
 	private JTextField nServerPort;
 	private JTextField nickName;
+	private JCheckBox debug;
 	private JPanel settingsPanel;
 
 	private JButton accept;
@@ -32,12 +33,14 @@ public class SettingsFrame {
 		this.nickName = new JTextField("");
 		this.nServerName = new JTextField(nameServerAdress, 30);
 		this.nServerPort = new JTextField(nameServerPort);
+		this.debug = new JCheckBox("", true);
 
 		this.accept = new JButton("Connect");
 
 		JLabel portLabel = new JLabel("Port: ", JLabel.TRAILING);
 		JLabel nServNameLabel = new JLabel("Address: ", JLabel.TRAILING);
 		JLabel nickLabel = new JLabel("Nickname: ", JLabel.TRAILING);
+		JLabel debugLabel = new JLabel("Enable Debug", JLabel.TRAILING);
 		JLabel emptyLabel = new JLabel("", JLabel.TRAILING);
 
 		//Nickname
@@ -55,6 +58,12 @@ public class SettingsFrame {
 		portLabel.setLabelFor(this.nServerPort);
 		this.settingsFrame.add(this.nServerPort);
 
+		//Debug
+		this.settingsFrame.add(debugLabel);
+		debugLabel.setLabelFor(this.debug);
+		this.settingsFrame.add(this.debug);
+
+		//Accept button
 		this.settingsFrame.add(emptyLabel);
 		emptyLabel.setLabelFor(this.accept);
 		this.settingsFrame.add(this.accept);
@@ -108,7 +117,7 @@ public class SettingsFrame {
 		});
 		this.accept.addActionListener(ae -> settingsFrame.dispose());
 
-		SpringUtilities.makeCompactGrid(this.settingsPanel, 4, 2, 5, 5, 5, 5);
+		SpringUtilities.makeCompactGrid(this.settingsPanel, 5, 2, 5, 5, 5, 5);
 	}
 
 	public String getNameServerAdress(){
@@ -121,6 +130,10 @@ public class SettingsFrame {
 
 	public String getNickName() {
 		return nickName.getText();
+	}
+
+	public boolean getDebug() {
+		return debug.isSelected();
 	}
 
 	public void waitUntilDisposed() {

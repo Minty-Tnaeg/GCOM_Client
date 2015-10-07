@@ -30,12 +30,6 @@ public class GroupListFrame {
         this.serverFrame.add(this.tablePanel);
         this.tablePanel.setPreferredSize(new Dimension(500, 300));
         this.groupList = mw.getGroupList();
-        for(String[] ss : groupList){
-            for(String s : ss){
-                System.err.println(s + " ");
-            }
-            System.err.println("");
-        }
         buildCreateGroupText();
         buildGroupTable();
         buildConnectButton();
@@ -77,7 +71,12 @@ public class GroupListFrame {
         jp.add(new JLabel("Join group"), BorderLayout.NORTH);
 
         Object[][] dataTable = groupList;
-        DefaultTableModel tableModel = new DefaultTableModel(dataTable, header);
+        DefaultTableModel tableModel = new DefaultTableModel(dataTable, header){
+            @Override
+            public boolean isCellEditable(int row, int column){
+                return false;
+            }
+        };
 
         DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer();
         leftRenderer.setHorizontalAlignment(JLabel.LEFT);
@@ -97,9 +96,26 @@ public class GroupListFrame {
     private void buildConnectButton(){
         JButton button = new JButton("Connect");
         button.addActionListener(ae -> {
-            mw.joinGroup(groupList[groupTable.getSelectedRow()][0]);
-            serverFrame.dispose();
+            if(groupTable.getSelectedRow() == -1){
+                if(!this.newGroup.getText().isEmpty()) {
+                    mw.joinGroup(this.newGroup.getText());
+                    serverFrame.dispose();
+                }
+            }else{
+                mw.joinGroup(groupList[groupTable.getSelectedRow()][0]);
+                serverFrame.dispose();
+            }
         });
         this.tablePanel.add(button, BorderLayout.SOUTH);
+    }
+
+    public void waitUntilDisposed() {
+        while(this.serverFrame.isDisplayable()){
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
