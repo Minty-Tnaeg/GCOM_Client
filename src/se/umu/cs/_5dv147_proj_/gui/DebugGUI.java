@@ -1,6 +1,7 @@
 package se.umu.cs._5dv147_proj_.gui;
 
 import remote.objects.AbstractContainer;
+import se.umu.cs._5dv147_proj.Middleware;
 import se.umu.cs._5dv147_proj.settings.Debug;
 import se.umu.cs._5dv147_proj_.gui.Contents.SpringUtilities;
 
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 /**
  * Created by c12slm on 2015-10-07.
  */
-public class DebugGUI extends JPanel {
+public class DebugGUI extends JPanel{
     private JTextField minDelay;
     private JTextField maxDelay;
     private JTextField dropRate;
@@ -25,9 +26,10 @@ public class DebugGUI extends JPanel {
         super(new BorderLayout());
         buildButtonPanel();
         buildHoldBackQueueTable();
+
     }
 
-    private void buildButtonPanel() {
+    private void buildButtonPanel()  {
         JPanel buttonPanel = new JPanel(new SpringLayout());
 
         this.minDelay = new JTextField("0", 5);
@@ -126,4 +128,5 @@ public class DebugGUI extends JPanel {
         }
         this.holdBackTable.fireTableDataChanged();
     }
+
 }

@@ -2,6 +2,7 @@ package se.umu.cs._5dv147_proj_.gui;
 
 import se.umu.cs._5dv147_proj.Middleware;
 import se.umu.cs._5dv147_proj.settings.Debug;
+import se.umu.cs._5dv147_proj_.gui.Contents.FrameListener;
 import se.umu.cs._5dv147_proj_.gui.Contents.GroupListFrame;
 import se.umu.cs._5dv147_proj_.gui.Contents.SettingsFrame;
 import se.umu.cs._5dv147_proj_.gui.Contents.SmartScroller;
@@ -29,6 +30,7 @@ public class ClientGUI {
 
     public ClientGUI() {
         this.frame= new JFrame("ChatClient2000");
+        this.frame.addWindowListener(new FrameListener(this));
         this.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.chatPanel = new JPanel(new BorderLayout());
         this.frame.add(this.chatPanel);
@@ -37,7 +39,8 @@ public class ClientGUI {
         buildChatWindow();
         buildChatMessage();
 
-        SettingsFrame sf = new SettingsFrame("localhost", "33401");
+        SettingsFrame sf = new SettingsFrame("itchy.cs.umu.se" +
+                "", "33401");
         sf.waitUntilDisposed();
 
         ArrayList<String> args = new ArrayList<>();
@@ -151,5 +154,9 @@ public class ClientGUI {
             }
             this.userTable.fireTableDataChanged();
         }
+    }
+
+    public Middleware getMiddleWare() {
+        return this.mw;
     }
 }
